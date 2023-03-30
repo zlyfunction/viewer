@@ -1,34 +1,38 @@
+#include <igl/readOBJ.h>
 #include <igl/opengl/glfw/Viewer.h>
+#include <iostream>
+  Eigen::MatrixXd V, uv;
+  Eigen::MatrixXi F;
+
+// This function is called every time a keyboard button is pressed
+bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier)
+{
+  if (key == '1')
+  {
+    viewer.data().clear();
+    viewer.data().set_mesh(V, F);
+    viewer.core().align_camera_center(V,F);
+  }
+  else if (key == '2')
+  {
+    viewer.data().clear();
+    viewer.data().set_mesh(uv, F);
+    viewer.core().align_camera_center(uv,F);
+  }
+
+  return false;
+}
+
 
 int main(int argc, char *argv[])
 {
-  // Inline mesh of a cube
-  const Eigen::MatrixXd V= (Eigen::MatrixXd(8,3)<<
-    0.0,0.0,0.0,
-    0.0,0.0,1.0,
-    0.0,1.0,0.0,
-    0.0,1.0,1.0,
-    1.0,0.0,0.0,
-    1.0,0.0,1.0,
-    1.0,1.0,0.0,
-    1.0,1.0,1.0).finished();
-  const Eigen::MatrixXi F = (Eigen::MatrixXi(12,3)<<
-    0,6,4,
-    0,2,6,
-    0,3,2,
-    0,1,3,
-    2,7,6,
-    2,3,7,
-    4,6,7,
-    4,7,5,
-    0,4,5,
-    0,5,1,
-    1,5,7,
-    1,7,3).finished();
 
-  // Plot the mesh
+  igl::readOBJ(argv[1], V, uv, uv, F, F, F);
+
   igl::opengl::glfw::Viewer viewer;
+  // Register a keyboard callback that allows to switch between
+  // the two loaded meshes
+  viewer.callback_key_down = &key_down;
   viewer.data().set_mesh(V, F);
-  viewer.data().set_face_based(true);
   viewer.launch();
 }
